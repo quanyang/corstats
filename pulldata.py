@@ -33,7 +33,20 @@ class CorsData:
 	def getAllModules(self):
 		url = "https://myaces.nus.edu.sg/cors/jsp/report/ModuleInfoListing.jsp"
 		r = self.request.get(url)
-		print r.text.strip().replace("  ","").replace("\r\n","").replace("\t","")
+		if r.status_code == 200:
+			data = r.text.strip().replace("  ","").replace("\r","").replace("\n","").replace("\t","")
+			results = re.findall(r'valign="top">(.+?)<tr',data)[1:]
+
+			self.modules = dict()
+			for result in results:
+				data_split = re.findall(r"<div [^>]+>(.+?)</div>",result)
+				module_Code = data_split[1].split(">")[1].split("<")[0]
+				module_Title = data_split[2]
+				module_Session = data_split[4]
+
+				self.modules[module_Code] = data_split[2:]
+
+			print self.modules["CS1020"]
 
 	def getOpenBid(self,round,buffer):
 		url = "http://www.cors.nus.edu.sg/Reports/%s_%s_%s.html"%("openbid",round,self.semester)
