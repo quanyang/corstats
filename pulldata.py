@@ -25,10 +25,11 @@ class CorsData:
 		self.request = requests.session()
 		self.all_Modules = dict()
 
-
 		#	populate variables
-		#self.getAllOpenBid()
+		self.getAllOpenBid()
 		self.getAllModules()
+
+	
 
 	def getAllModules(self):
 		url = "https://myaces.nus.edu.sg/cors/jsp/report/ModuleInfoListing.jsp"
@@ -45,8 +46,6 @@ class CorsData:
 				module_Session = data_split[4]
 
 				self.modules[module_Code] = data_split[2:]
-
-			print self.modules["CS1020"]
 
 	def getOpenBid(self,round,buffer):
 		url = "http://www.cors.nus.edu.sg/Reports/%s_%s_%s.html"%("openbid",round,self.semester)
@@ -70,26 +69,38 @@ class CorsData:
 					prevmod = key
 
 	def getAllOpenBid(self):
-		self.round1A_OpenBid = dict()
-		self.getOpenBid("1A",self.round1A_OpenBid)
-		self.round1B_OpenBid = dict()
-		self.getOpenBid("1B",self.round1B_OpenBid)
-		self.round2A_OpenBid = dict()
-		self.getOpenBid("2A",self.round2A_OpenBid)
-		self.round2B_OpenBid = dict()
-		self.getOpenBid("2B",self.round2B_OpenBid)
-		self.round3A_OpenBid = dict()
-		self.getOpenBid("3A",self.round3A_OpenBid)
-		self.round3B_OpenBid = dict()
-		self.getOpenBid("3B",self.round3B_OpenBid)
+		round1A_OpenBid = dict()
+		self.getOpenBid("1A",round1A_OpenBid)
+		round1B_OpenBid = dict()
+		self.getOpenBid("1B",round1B_OpenBid)
+		round2A_OpenBid = dict()
+		self.getOpenBid("2A",round2A_OpenBid)
+		round2B_OpenBid = dict()
+		self.getOpenBid("2B",round2B_OpenBid)
+		round3A_OpenBid = dict()
+		self.getOpenBid("3A",round3A_OpenBid)
+		round3B_OpenBid = dict()
+		self.getOpenBid("3B",round3B_OpenBid)
 
 		#assuming round 1b - round 1a would be new mods not in round 1a, and so forth
-		self.round1A_Mods = set(self.round1A_OpenBid.keys())
-		self.round1B_Mods = set(self.round1B_OpenBid.keys())
-		self.round2A_Mods = set(self.round2A_OpenBid.keys())
-		self.round2B_Mods = set(self.round2B_OpenBid.keys())
-		self.round3A_Mods = set(self.round3A_OpenBid.keys())
-		self.round3B_Mods = set(self.round3B_OpenBid.keys())
+		round1B_Mods = set(round1B_OpenBid.keys())
+		round2A_Mods = set(round2A_OpenBid.keys())
+		round2B_Mods = set(round2B_OpenBid.keys())
+		round3A_Mods = set(round3A_OpenBid.keys())
+		round3B_Mods = set(round3B_OpenBid.keys())
+
+		self.moduleSlots = round1A_OpenBid
+		for key in round1B_Mods-set(self.moduleSlots.keys()):
+			self.moduleSlots[key] = round1B_OpenBid[key]
+		for key in round2A_Mods-set(self.moduleSlots.keys()):
+			self.moduleSlots[key] = round2A_OpenBid[key]
+		for key in round2B_Mods-set(self.moduleSlots.keys()):
+			self.moduleSlots[key] = round2B_OpenBid[key]
+		for key in round3A_Mods-set(self.moduleSlots.keys()):
+			self.moduleSlots[key] = round3A_OpenBid[key]
+		for key in round3B_Mods-set(self.moduleSlots.keys()):
+			self.moduleSlots[key] = round3B_OpenBid[key]
+
 		
 def main():
 	semester = sys.argv[1]
