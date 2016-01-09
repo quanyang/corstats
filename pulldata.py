@@ -186,21 +186,31 @@ class CorsData:
 		for key in self.round3B_Mods-set(self.moduleSlots.keys()):
 			self.moduleSlots[key] = (self.round3B_OpenBid[key],"3B")
 
+	def checkLatestRound(self):
+		rounds = ["3B","3A","2B","2A","1B","1A"]
+		for round in rounds:
+			if getattr(self,'round%s_OpenBid'%round):
+				return round
+
 	def findModule(self, module = ("ACC1002","LECTURE V01")):
+		self.latestRound = self.checkLatestRound()
+
 		if module in self.moduleSlots:
 			moduleData = self.moduleSlots[module]
 			numOfBidders = getattr(self,'round%s_CloseBid'%moduleData[1])[module]
+			numOfBidders_Summary = getattr(self,'round%s_Summary'%moduleData[1])[module]
+			if numOfBidders_Summary > numOfBidders:
+				numOfBidders = numOfBidders_Summary
 			print "Module %s @ %s has %d slots."%(module[0],module[1],moduleData[0])
 			print "Number of bidders: %d"%numOfBidders
 			ratio = float(numOfBidders)/float(moduleData[0])
 			print "Ratio: %.2f"%ratio
 			if ratio<0.9:
-				print "Healthy, need not rush to bid in round 1A."
+				print "Healthy, need not rush to bid, would have plenty in round 3."
 			else:
-				print "Unhealthy, bid as you can afford."
-
-
-
+				print "Unhealthy, bid as much as you can afford."
+		else:
+			print "Module not found!"
 
 def main():
 	semester = sys.argv[1]
