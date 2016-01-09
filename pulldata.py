@@ -9,7 +9,7 @@ pulldata.py
 
 python pulldata 20152016s2
 
-pulls data of all rounds from cors
+pulls statistics of all rounds from cors
 
 """
 __author__ = "QuanYang"
@@ -25,15 +25,14 @@ class CorsData:
 		self.semester = semester
 		self.request = requests.session()
 		self.all_Modules = dict()
+		self.moduleSlots=dict()
 
 		self.parseCorsSchedule()
-		
 		#	populate variables
+		self.getAllModules()
 		self.getAllOpenBidStats()
 		self.getAllCloseBidStats()
 		self.getAllBiddingSummary()
-		self.getAllModules()
-
 
 	def parseCorsSchedule(self):
 		filename = "corsSchedule_%s.json"%self.semester
@@ -53,7 +52,6 @@ class CorsData:
 				module_Code = data_split[1].split(">")[1].split("<")[0]
 				module_Title = data_split[2]
 				module_Session = data_split[4]
-
 				self.modules[module_Code] = data_split[2:]
 
 	def getOpenBid(self,round,buffer):
@@ -94,16 +92,14 @@ class CorsData:
 				if "<td colspan=2>" in result:
 					#belongs to prev mod
 					data_split = re.findall(r'<td><p>(\d+?)</p></td>',result)
-					buffer[prevmod][0] += int(data_split[1])
-					buffer[prevmod][1] += int(data_split[2])
+					buffer[prevmod] += int(data_split[1])
 				else:
 					data_split = result.replace("</p></td>","").split("<td><p>")[1:]
 					key = (data_split[0],data_split[1])
 					if key in buffer:
-						buffer[key][0] += int(data_split[4])
-						buffer[key][1] += int(data_split[5])
+						buffer[key] += int(data_split[4])
 					else:
-						buffer[key] = [int(data_split[4]),int(data_split[5])]
+						buffer[key] = int(data_split[4])
 					prevmod = key
 
 	def getSummary(self,round,buffer):
@@ -127,75 +123,89 @@ class CorsData:
 						buffer[key] = int(data_split[3])
 					prevmod = key
 
-
-
 	def getAllBiddingSummary(self):
-		round1A_Summary = dict()
-		self.getSummary("1A",round1A_Summary)
-		round1B_Summary = dict()
-		self.getSummary("1B",round1B_Summary)
-		round2A_Summary = dict()
-		self.getSummary("2A",round2A_Summary)
-		round2B_Summary = dict()
-		self.getSummary("2B",round2B_Summary)
-		round3A_Summary = dict()
-		self.getSummary("3A",round3A_Summary)
-		round3B_Summary = dict()
-		self.getSummary("3B",round3B_Summary)
-
+		self.round1A_Summary = dict()
+		self.getSummary("1A",self.round1A_Summary)
+		self.round1B_Summary = dict()
+		self.getSummary("1B",self.round1B_Summary)
+		self.round2A_Summary = dict()
+		self.getSummary("2A",self.round2A_Summary)
+		self.round2B_Summary = dict()
+		self.getSummary("2B",self.round2B_Summary)
+		self.round3A_Summary = dict()
+		self.getSummary("3A",self.round3A_Summary)
+		self.round3B_Summary = dict()
+		self.getSummary("3B",self.round3B_Summary)
 
 	def getAllCloseBidStats(self):
-		round1A_CloseBid = dict()
-		self.getCloseBid("1A",round1A_CloseBid)
-		round1B_CloseBid = dict()
-		self.getCloseBid("1B",round1B_CloseBid)
-		round2A_CloseBid = dict()
-		self.getCloseBid("2A",round2A_CloseBid)
-		round2B_CloseBid = dict()
-		self.getCloseBid("2B",round2B_CloseBid)
-		round3A_CloseBid = dict()
-		self.getCloseBid("3A",round3A_CloseBid)
-		round3B_CloseBid = dict()
-		self.getCloseBid("3B",round3B_CloseBid)
+		self.round1A_CloseBid = dict()
+		self.getCloseBid("1A",self.round1A_CloseBid)
+		self.round1B_CloseBid = dict()
+		self.getCloseBid("1B",self.round1B_CloseBid)
+		self.round2A_CloseBid = dict()
+		self.getCloseBid("2A",self.round2A_CloseBid)
+		self.round2B_CloseBid = dict()
+		self.getCloseBid("2B",self.round2B_CloseBid)
+		self.round3A_CloseBid = dict()
+		self.getCloseBid("3A",self.round3A_CloseBid)
+		self.round3B_CloseBid = dict()
+		self.getCloseBid("3B",self.round3B_CloseBid)
 
 	def getAllOpenBidStats(self):
-		round1A_OpenBid = dict()
-		self.getOpenBid("1A",round1A_OpenBid)
-		round1B_OpenBid = dict()
-		self.getOpenBid("1B",round1B_OpenBid)
-		round2A_OpenBid = dict()
-		self.getOpenBid("2A",round2A_OpenBid)
-		round2B_OpenBid = dict()
-		self.getOpenBid("2B",round2B_OpenBid)
-		round3A_OpenBid = dict()
-		self.getOpenBid("3A",round3A_OpenBid)
-		round3B_OpenBid = dict()
-		self.getOpenBid("3B",round3B_OpenBid)
+		self.round1A_OpenBid = dict()
+		self.getOpenBid("1A",self.round1A_OpenBid)
+		self.round1B_OpenBid = dict()
+		self.getOpenBid("1B",self.round1B_OpenBid)
+		self.round2A_OpenBid = dict()
+		self.getOpenBid("2A",self.round2A_OpenBid)
+		self.round2B_OpenBid = dict()
+		self.getOpenBid("2B",self.round2B_OpenBid)
+		self.round3A_OpenBid = dict()
+		self.getOpenBid("3A",self.round3A_OpenBid)
+		self.round3B_OpenBid = dict()
+		self.getOpenBid("3B",self.round3B_OpenBid)
 
-		#assuming round 1b - round 1a would be new mods not in round 1a, and so forth
-		round1B_Mods = set(round1B_OpenBid.keys())
-		round2A_Mods = set(round2A_OpenBid.keys())
-		round2B_Mods = set(round2B_OpenBid.keys())
-		round3A_Mods = set(round3A_OpenBid.keys())
-		round3B_Mods = set(round3B_OpenBid.keys())
+		#assuming self.round 1b - self.round 1a would be new mods not in self.round 1a, and so forth
+		self.round1A_Mods = set(self.round1A_OpenBid.keys())
+		self.round1B_Mods = set(self.round1B_OpenBid.keys())
+		self.round2A_Mods = set(self.round2A_OpenBid.keys())
+		self.round2B_Mods = set(self.round2B_OpenBid.keys())
+		self.round3A_Mods = set(self.round3A_OpenBid.keys())
+		self.round3B_Mods = set(self.round3B_OpenBid.keys())
 
-		self.moduleSlots = round1A_OpenBid
-		for key in round1B_Mods-set(self.moduleSlots.keys()):
-			self.moduleSlots[key] = round1B_OpenBid[key]
-		for key in round2A_Mods-set(self.moduleSlots.keys()):
-			self.moduleSlots[key] = round2A_OpenBid[key]
-		for key in round2B_Mods-set(self.moduleSlots.keys()):
-			self.moduleSlots[key] = round2B_OpenBid[key]
-		for key in round3A_Mods-set(self.moduleSlots.keys()):
-			self.moduleSlots[key] = round3A_OpenBid[key]
-		for key in round3B_Mods-set(self.moduleSlots.keys()):
-			self.moduleSlots[key] = round3B_OpenBid[key]
+		for key in self.round1A_Mods:
+			self.moduleSlots[key] = (self.round1A_OpenBid[key],"1A")
+		for key in self.round1B_Mods-set(self.moduleSlots.keys()):
+			self.moduleSlots[key] = (self.round1B_OpenBid[key],"1B")
+		for key in self.round2A_Mods-set(self.moduleSlots.keys()):
+			self.moduleSlots[key] = (self.round2A_OpenBid[key],"2A")
+		for key in self.round2B_Mods-set(self.moduleSlots.keys()):
+			self.moduleSlots[key] = (self.round2B_OpenBid[key],"2B")
+		for key in self.round3A_Mods-set(self.moduleSlots.keys()):
+			self.moduleSlots[key] = (self.round3A_OpenBid[key],"3A")
+		for key in self.round3B_Mods-set(self.moduleSlots.keys()):
+			self.moduleSlots[key] = (self.round3B_OpenBid[key],"3B")
 
-		
+	def findModule(self, module = ("ACC1002","LECTURE V01")):
+		if module in self.moduleSlots:
+			moduleData = self.moduleSlots[module]
+			numOfBidders = getattr(self,'round%s_CloseBid'%moduleData[1])[module]
+			print "Module %s @ %s has %d slots."%(module[0],module[1],moduleData[0])
+			print "Number of bidders: %d"%numOfBidders
+			ratio = float(numOfBidders)/float(moduleData[0])
+			print "Ratio: %.2f"%ratio
+			if ratio<0.9:
+				print "Healthy, need not rush to bid in round 1A."
+			else:
+				print "Unhealthy, bid as you can afford."
+
+
+
+
 def main():
 	semester = sys.argv[1]
 	cors = CorsData(semester)
-
+	cors.findModule((sys.argv[2],sys.argv[3]))
 
 if __name__ == '__main__':
 	main()
