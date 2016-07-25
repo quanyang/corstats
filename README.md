@@ -1,6 +1,8 @@
 # corstats
 Stats for NUS CORS bidding
 
+Get CORs schedule JSON from:
+https://github.com/nusmodifications/nusmods/tree/44a8660238b53ccc7da810a372bf2c624fa9bf4b/app/scripts/cors
 
 # How to use
 
